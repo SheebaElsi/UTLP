@@ -1,0 +1,102 @@
+/*
+*main.c
+*
+*Created on:04-08-2018
+*Author: Yupin.B, Thamarai.M, Sheeba.S, Keerthivasa.T,  Manoranjitha.M, Rajalakshmi Institutions,Chennai.
+
+
+*/
+#include "macros.h"
+#include <ulk.h>
+
+int main(void) PROGRAM_ENTRY;
+
+int main()
+
+{
+
+	  struct PIXEL
+	  {
+	  	unsigned int x;
+	  	unsigned int y;
+	  };
+	  extern struct PIXEL pixel;
+	  extern struct PIXEL ulk_proc_touch_spi_enable(void);
+	  extern struct PIXEL ulk_proc_touch_spi_poll(void);
+	  extern void ulk_proc_touch_spi_disable(void);
+	int row=0,column=0, *address = 0x80500000;
+	for(row=0;row<320;row++)
+	{
+		for(column=0; column<160; column++)
+		{
+			*(address+(row*320)+column) = 0xff0000;
+		}
+	}
+	for(row=0;row<320;row++)
+	{
+		for(column=161; column<=320; column++)
+		{
+			*(address+(row*320)+column) = 0x00ff00;
+		}
+	}
+
+
+    ulk_fpga_clcd_init();
+	ulk_fpga_clcd_display_on();
+	ulk_fpga_clcd_display_clear();
+	ulk_fpga_clcd_cursor_home();
+	ulk_fpga_clcd_display_string("PRESS RED FOR ADMK***PRESS GREEN FOR DMK");
+	ulk_fpga_clcd_shift_left(6);
+	ulk_proc_delay(ULK_SEC(2));
+	ulk_proc_touch_spi_enable();
+
+	  while(1)
+			       {
+			       	pixel=ulk_proc_touch_spi_poll();
+			       	if (pixel.x!=0 && pixel.y!=0)
+			       	{
+			       		ulk_cpanel_printf(" Xpos: %d\n YPos: %d\n", pixel.x,pixel.y);
+
+			       			break;
+			       	}
+			       		}
+
+
+
+
+			       ulk_proc_touch_spi_disable();
+			       int i,fd,sd,td,frd,dd;
+			       	i=1;
+			       	       ulk_fpga_7seg_led_enable();
+			       	   	   fd = i%10;
+			       		   sd = ((i/10)%10)*16;
+			                  td = ((i/100)%10)*16*16;
+			       		   frd= (i/1000)*16*16*16;
+			       		   dd = fd+sd+td+frd;
+			       	   	   ulk_fpga_7seg_led_write(i);
+			       	   	   ulk_proc_delay(ULK_SEC(2));
+			       	   	   ulk_fpga_7seg_led_write(dd);
+			       	   	   ulk_proc_delay(ULK_SEC(2));
+			       	   	   ulk_fpga_7seg_led_write(i);
+			       	   	   ulk_proc_delay(ULK_SEC(2));
+			       	   	   ulk_fpga_7seg_led_disable();
+
+
+	  char user_string[100];
+	  unsigned long a = 1;
+
+	 /* User input and Display*/
+	while(1)
+	{
+
+	  ulk_proc_led_config(a-1);
+	  ulk_proc_led_drive(a-1,1);
+	  break;
+
+	}
+	ulk_fpga_clcd_display_string("voted!");
+}
+
+
+
+
